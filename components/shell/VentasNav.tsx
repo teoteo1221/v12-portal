@@ -3,13 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  BarChart3,
-  ClipboardList,
   KanbanSquare,
   List,
   Phone,
-  Settings,
-  Upload,
+  ClipboardList,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -21,13 +18,10 @@ type Tab = {
 };
 
 const TABS: Tab[] = [
-  { href: "/ventas", label: "Dashboard", icon: BarChart3 },
   { href: "/ventas/pipeline", label: "Pipeline", icon: KanbanSquare },
-  { href: "/ventas/listado", label: "Listado", icon: List },
+  { href: "/ventas/listado",  label: "Listado",  icon: List },
   { href: "/ventas/llamadas", label: "Llamadas", icon: Phone },
   { href: "/ventas/metricas", label: "Métricas", icon: ClipboardList },
-  { href: "/ventas/importar", label: "Importar", icon: Upload },
-  { href: "/ventas/config", label: "Config", icon: Settings },
 ];
 
 export function VentasNav() {
@@ -35,10 +29,7 @@ export function VentasNav() {
   return (
     <nav className="flex flex-wrap gap-0.5" aria-label="Secciones de Ventas">
       {TABS.map((t) => {
-        const active =
-          t.href === "/ventas"
-            ? pathname === "/ventas"
-            : pathname.startsWith(t.href);
+        const active = pathname.startsWith(t.href);
         const Icon = t.icon;
         return (
           <Link

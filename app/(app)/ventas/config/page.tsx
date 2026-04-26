@@ -144,25 +144,6 @@ export default async function VentasConfigPage() {
         </div>
       )}
 
-      {/* Templates placeholder */}
-      <section className="card-padded lg:col-span-2">
-        <div className="mb-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <FileText className="h-4 w-4 text-v12-muted" />
-            <h3 className="section-title">Plantillas de follow-up</h3>
-          </div>
-          <span className="badge-neutral">Próximamente</span>
-        </div>
-        <div className="empty-state">
-          <FileText className="mx-auto mb-2 h-8 w-8 text-v12-muted-light" />
-          <div className="text-sm font-semibold text-v12-ink">
-            Editor de plantillas en camino
-          </div>
-          <div className="mt-1 text-xs text-v12-muted">
-            Vas a poder armar mensajes reutilizables de WhatsApp y email.
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

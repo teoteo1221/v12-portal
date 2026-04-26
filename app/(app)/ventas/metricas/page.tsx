@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createSupabaseServer } from "@/lib/supabase/server";
 import { MetricsForm } from "./MetricsForm";
-import { ClipboardList, History, LineChart } from "lucide-react";
+import { ClipboardList, History } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -131,24 +131,15 @@ export default async function MetricasPage({
 
   return (
     <div className="space-y-5">
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <div className="eyebrow">Diario</div>
-          <h2 className="text-xl font-black tracking-tight text-v12-ink">
-            Métricas del setter
-          </h2>
-          <p className="mt-0.5 text-sm text-v12-muted">
-            Cargás a mano lo que hiciste hoy. Las llamadas y clientes nuevos se
-            calculan solos desde el CRM. Se guarda{" "}
-            <strong>una fila por día</strong> y podés volver para editarla.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1 rounded-full bg-v12-bg px-2.5 py-1 text-[11px] font-bold text-v12-muted">
-            <LineChart className="h-3 w-3" />
-            {isAdmin ? "Admin: podés cargar para cualquier setter" : "Tus métricas"}
+      <header className="flex items-center justify-between gap-3">
+        <h2 className="text-lg font-black tracking-tight text-v12-ink">
+          Métricas del setter
+        </h2>
+        {isAdmin && (
+          <span className="rounded-full bg-v12-bg px-2.5 py-1 text-[11px] font-bold text-v12-muted">
+            Admin
           </span>
-        </div>
+        )}
       </header>
 
       <MetricsForm
