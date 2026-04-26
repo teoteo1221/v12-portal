@@ -27,17 +27,13 @@ import {
   Home,
   Target,
   KanbanSquare,
-  Megaphone,
+  Gift,
   Sparkles,
   Settings,
   Phone,
   Users,
   ArrowRight,
-  User,
   X,
-  LayoutGrid,
-  BookOpenText,
-  LineChart,
   ExternalLink,
   Loader2,
 } from "lucide-react";
@@ -97,27 +93,11 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     kind: "nav",
-    id: "mkt-plan",
-    label: "Plan de contenido",
-    hint: "Marketing",
-    href: "/marketing/plan",
-    icon: LayoutGrid,
-  },
-  {
-    kind: "nav",
-    id: "mkt-estrategia",
-    label: "Estrategia",
-    hint: "Marketing",
-    href: "/marketing/estrategia",
-    icon: BookOpenText,
-  },
-  {
-    kind: "nav",
-    id: "mkt-resultados",
-    label: "Resultados",
-    hint: "Marketing",
-    href: "/marketing/resultados",
-    icon: LineChart,
+    id: "lead-magnets",
+    label: "Lead Magnets",
+    hint: "Captación",
+    href: "/lead-magnets",
+    icon: Gift,
   },
   {
     kind: "nav",
@@ -272,7 +252,7 @@ export function CommandPalette() {
       router.push(`/ventas/listado?leadId=${item.id}`);
       close();
     } else if (item.kind === "piece") {
-      router.push(`/marketing/plan?mode=lista&edit=${item.id}`);
+      router.push(`/lead-magnets`);
       close();
     }
   }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   Sparkles,
   Plus,
@@ -19,13 +19,15 @@ import {
   ListChecks,
   HelpCircle,
   Monitor,
+  Users,
+  ArrowRight,
 } from "lucide-react";
 import {
   createLeadMagnet,
   updateLeadMagnet,
   toggleLeadMagnetActive,
   deleteLeadMagnet,
-} from "./lead-magnets-actions";
+} from "./actions";
 
 type Tipo =
   | "pdf"
@@ -77,26 +79,6 @@ export function LeadMagnetsPanel({ rows, leadsByMagnet }: Props) {
   const [filter, setFilter] = useState<"all" | "active" | "inactive">("all");
   const [showCreate, setShowCreate] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const searchParams = useSearchParams();
-  const router = useRouter();
-
-  useEffect(() => {
-    const newParam = searchParams.get("new");
-    const editParam = searchParams.get("edit");
-    if (newParam === "1") {
-      setShowCreate(true);
-      router.replace(
-        "/marketing/estrategia?tab=librerias&lib=lead-magnets",
-        { scroll: false },
-      );
-    } else if (editParam && rows.some((r) => r.id === editParam)) {
-      setEditingId(editParam);
-      router.replace(
-        "/marketing/estrategia?tab=librerias&lib=lead-magnets",
-        { scroll: false },
-      );
-    }
-  }, [searchParams, router, rows]);
 
   const filtered = useMemo(() => {
     if (filter === "active") return rows.filter((r) => r.activo);
@@ -110,13 +92,13 @@ export function LeadMagnetsPanel({ rows, leadsByMagnet }: Props) {
     <div className="space-y-5">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <div className="eyebrow">Lead magnets</div>
+          <div className="eyebrow">Recursos gratuitos</div>
           <h2 className="text-xl font-black tracking-tight text-v12-ink">
-            Recursos que capturan leads
+            Lead Magnets
           </h2>
           <p className="mt-0.5 text-sm text-v12-muted">
-            Cada recurso (PDF, quiz, clase) se conecta con los leads que llegan
-            por ese canal para ver qué funciona.
+            Cada recurso (PDF, quiz, clase) capta leads. Hacé clic en "Ver leads"
+            para ver quiénes lo pidieron.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -239,6 +221,7 @@ function LeadMagnetCard({
 }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
   const tipo = TIPO_META[lm.tipo] || TIPO_META.otro;
   const Icon = tipo.icon;
 
@@ -340,12 +323,6 @@ function LeadMagnetCard({
 
       <div className="flex items-center justify-between border-t border-v12-line-soft pt-2">
         <div className="flex items-center gap-2 text-[11px] text-v12-muted">
-          <span title="Leads capturados">
-            🎯{" "}
-            <span className="num-tab font-black text-v12-navy">
-              {leadsCount}
-            </span>
-          </span>
           {lm.landing_url && (
             <a
               href={lm.landing_url}
@@ -361,6 +338,17 @@ function LeadMagnetCard({
           )}
         </div>
         <div className="flex items-center gap-1">
+          {/* Ver leads — link a detalle */}
+          <button
+            type="button"
+            onClick={() => router.push(`/lead-magnets/${lm.id}`)}
+            className="inline-flex items-center gap-1 rounded-md border border-v12-navy/20 bg-v12-navy-soft px-2 py-1 text-[10px] font-bold text-v12-navy transition hover:bg-v12-navy hover:text-white"
+            title="Ver leads captados"
+          >
+            <Users className="h-3 w-3" />
+            {leadsCount}
+            <ArrowRight className="h-2.5 w-2.5" />
+          </button>
           <button
             type="button"
             onClick={onToggleActive}

@@ -6,7 +6,7 @@ import {
   Home,
   Target,
   Dumbbell,
-  Megaphone,
+  Gift,
   BarChart3,
   Settings,
   ChevronLeft,
@@ -38,9 +38,9 @@ const NAV: NavItem[] = [
     group: "ext",
   },
   {
-    href: "/marketing",
-    label: "Marketing",
-    icon: Megaphone,
+    href: "/lead-magnets",
+    label: "Lead Magnets",
+    icon: Gift,
     group: "main",
   },
   {

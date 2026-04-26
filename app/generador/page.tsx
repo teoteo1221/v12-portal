@@ -56,11 +56,11 @@ export default async function GeneradorStandalonePage({
           Generador V12 · Modo standalone
         </div>
         <Link
-          href="/marketing/plan"
+          href="/lead-magnets"
           className="rounded px-2 py-1 text-[11px] font-bold text-white/70 transition hover:bg-white/10 hover:text-white"
-          title="Ir al plan de contenido"
+          title="Ir a Lead Magnets"
         >
-          Plan →
+          Lead Magnets →
         </Link>
       </div>
       {/* Iframe fullscreen con el generador */}

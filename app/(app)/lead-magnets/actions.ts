@@ -42,7 +42,7 @@ function slugify(input: string): string {
     .trim()
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[̀-ͯ]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 80);
@@ -105,9 +105,7 @@ export async function createLeadMagnet(formData: FormData): Promise<Result> {
     return { ok: false, error: dbErr.message };
   }
 
-  revalidatePath("/marketing");
-  revalidatePath("/marketing/estrategia");
-  revalidatePath("/marketing/lead-magnets");
+  revalidatePath("/lead-magnets");
   return { ok: true, id: data?.id };
 }
 
@@ -157,9 +155,8 @@ export async function updateLeadMagnet(formData: FormData): Promise<Result> {
 
   if (dbErr) return { ok: false, error: dbErr.message };
 
-  revalidatePath("/marketing");
-  revalidatePath("/marketing/estrategia");
-  revalidatePath("/marketing/lead-magnets");
+  revalidatePath("/lead-magnets");
+  revalidatePath(`/lead-magnets/${id}`);
   return { ok: true };
 }
 
@@ -180,9 +177,7 @@ export async function toggleLeadMagnetActive(
 
   if (dbErr) return { ok: false, error: dbErr.message };
 
-  revalidatePath("/marketing");
-  revalidatePath("/marketing/estrategia");
-  revalidatePath("/marketing/lead-magnets");
+  revalidatePath("/lead-magnets");
   return { ok: true };
 }
 
@@ -193,8 +188,6 @@ export async function deleteLeadMagnet(formData: FormData): Promise<Result> {
   const { supabase, error } = await requireAdmin();
   if (error) return { ok: false, error };
 
-  // Before deleting, detach leads that referenced this magnet (FK is ON DELETE SET NULL
-  // in the schema, so this is defensive — we leave the history intact).
   const { error: dbErr } = await supabase
     .from("lead_magnets")
     .delete()
@@ -202,8 +195,6 @@ export async function deleteLeadMagnet(formData: FormData): Promise<Result> {
 
   if (dbErr) return { ok: false, error: dbErr.message };
 
-  revalidatePath("/marketing");
-  revalidatePath("/marketing/estrategia");
-  revalidatePath("/marketing/lead-magnets");
+  revalidatePath("/lead-magnets");
   return { ok: true };
 }
