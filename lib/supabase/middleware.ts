@@ -36,7 +36,10 @@ export async function updateSession(request: NextRequest) {
   const isPublicAsset =
     path.startsWith("/_next") ||
     path.startsWith("/favicon") ||
-    path.startsWith("/api/public");
+    path.startsWith("/api/public") ||
+    path.startsWith("/test") ||
+    path.startsWith("/generador") ||
+    path.startsWith("/api/test-lead");
 
   if (!user && !isAuthRoute && !isPublicAsset) {
     const url = request.nextUrl.clone();

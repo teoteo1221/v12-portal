@@ -360,6 +360,7 @@ function inputStyle(hasError: boolean): React.CSSProperties {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function V12Test() {
+  const [showIntro, setShowIntro]   = useState(true);
   const [step, setStep]             = useState(0);
   const [answers, setAnswers]       = useState<Answers>({});
   const [showGate, setShowGate]     = useState(false);
@@ -450,6 +451,55 @@ export default function V12Test() {
         setTimeout(() => setCopied(false), 2500);
       });
     }
+  }
+
+  // ════════════════════════════════════════════════════════════════════════════
+  // INTRO SCREEN
+  // ════════════════════════════════════════════════════════════════════════════
+  if (showIntro) {
+    return (
+      <div style={{ background: V12.bgDark, minHeight: "100vh", fontFamily: "'Montserrat', sans-serif", color: V12.white, padding: "40px 20px", maxWidth: 480, margin: "0 auto", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+
+        {/* Logo / handle */}
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
+          <div style={{ fontSize: 11, color: V12.orange, letterSpacing: 3, textTransform: "uppercase", fontWeight: 700, marginBottom: 16 }}>@mateogsoto</div>
+          <div style={{ fontSize: 13, color: V12.greyLight, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", marginBottom: 12 }}>Diagnóstico gratuito</div>
+          <div style={{ fontSize: 28, fontWeight: 900, color: V12.white, lineHeight: 1.15, marginBottom: 12 }}>
+            ¿Estás entrenando bien<br />para tu posición?
+          </div>
+          <div style={{ fontSize: 14, color: V12.greyLight, lineHeight: 1.6 }}>
+            13 preguntas · menos de 3 minutos · resultado personalizado por posición
+          </div>
+        </div>
+
+        {/* What you get */}
+        <div style={{ background: V12.bgCard, borderRadius: 16, padding: "20px 18px", marginBottom: 28, border: `1px solid ${V12.border}` }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: V12.orange, letterSpacing: 1, textTransform: "uppercase", marginBottom: 14 }}>Vas a obtener</div>
+          {[
+            { icon: "📊", text: "Tu puntaje de rendimiento físico sobre 100" },
+            { icon: "🎯", text: "Perfil radar con 8 dimensiones clave del vóley" },
+            { icon: "⚠️", text: "Las 2 brechas que más te frenan hoy" },
+            { icon: "📍", text: "Análisis específico para tu posición" },
+          ].map((item, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: i < 3 ? 12 : 0 }}>
+              <span style={{ fontSize: 18, width: 28, textAlign: "center", flexShrink: 0 }}>{item.icon}</span>
+              <span style={{ fontSize: 13, color: V12.beige, lineHeight: 1.4 }}>{item.text}</span>
+            </div>
+          ))}
+        </div>
+
+        <button
+          onClick={() => setShowIntro(false)}
+          style={{ width: "100%", background: V12.orange, color: V12.white, fontWeight: 800, fontSize: 16, padding: "17px 0", borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "inherit", letterSpacing: 0.5, marginBottom: 12 }}
+        >
+          Empezar el diagnóstico →
+        </button>
+
+        <div style={{ fontSize: 11, color: V12.greyLight, textAlign: "center" }}>
+          Gratis · Sin cuenta · Resultado inmediato
+        </div>
+      </div>
+    );
   }
 
   // ════════════════════════════════════════════════════════════════════════════
