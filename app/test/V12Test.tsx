@@ -18,12 +18,11 @@ interface Option {
 }
 
 interface Question {
-  id:        string;
-  dim:       Dim | null;
-  text:      string;
-  sub?:      string;
-  reelLink?: boolean;
-  options:   Option[];
+  id:      string;
+  dim:     Dim | null;
+  text:    string;
+  sub?:    string;
+  options: Option[];
 }
 
 interface LeadData {
@@ -44,7 +43,6 @@ const V12 = {
 };
 
 const RESULTADOS_URL = "https://mateosoto-v12.carrd.co/";
-const REEL_CMJ_URL   = "https://www.instagram.com/p/DTn-tH7j4cS/";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 const positions: Position[] = ["Punta / Receptor", "Central", "Opuesto", "Armador", "Líbero"];
@@ -621,19 +619,6 @@ export default function V12Test() {
             {getProjection(overall)}
           </div>
         </div>
-
-        {/* CMJ tip for users who didn't measure */}
-        {answers.jump === "unknown" && (
-          <div style={{ background: V12.bgCard, borderRadius: 14, padding: "14px 16px", marginBottom: 20, border: `1px solid ${V12.border}`, display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ fontSize: 20, flexShrink: 0 }}>📏</span>
-            <div style={{ fontSize: 13, color: V12.greyLight, lineHeight: 1.5 }}>
-              ¿Querés saber cuánto saltás de verdad?{" "}
-              <a href={REEL_CMJ_URL} target="_blank" rel="noopener noreferrer" style={{ color: V12.orange, fontWeight: 700, textDecoration: "none" }}>
-                Mirá este video y medite en casa →
-              </a>
-            </div>
-          </div>
-        )}
 
         {/* Radar */}
         <div style={{ background: V12.bgCard, borderRadius: 16, padding: "20px 16px", marginBottom: 20, border: `1px solid ${V12.border}` }}>
