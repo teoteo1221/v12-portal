@@ -61,7 +61,7 @@ const positionDemands: Record<Position, { icon: string; title: string; desc: str
   "Punta / Receptor": [
     { icon: "⬆️", title: "Potencia de salto máxima",  desc: "Necesitás el mayor pico de fuerza en el menor tiempo posible para el remate." },
     { icon: "🦵", title: "Cuidar la rodilla",          desc: "El volumen de saltos y aterrizajes en tu posición es el más alto de la cancha." },
-    { icon: "🔄", title: "Resistencia de salto",       desc: "No alcanza saltar alto una vez — necesitás mantenerlo en el 3er set." },
+    { icon: "🔄", title: "Resistencia de salto",       desc: "No alcanza saltar alto una vez — necesitás mantenerlo en el 5to set." },
     { icon: "💪", title: "Fuerza de tren superior",    desc: "La potencia del remate viene del hombro, pecho y espalda bien entrenados." },
   ],
   "Central": [
@@ -148,14 +148,13 @@ const questions: Question[] = [
     id: "jump", dim: "potencia",
     text: "¿Cuánto saltás en CMJ (salto vertical sin carrera)?",
     sub: "Si nunca lo mediste, elegí 'No lo medí' y igual obtenés el resultado.",
-    reelLink: true,
     options: [
       { label: "Menos de 30 cm", value: 1, icon: "📏" },
       { label: "30–39 cm",       value: 2, icon: "📏" },
       { label: "40–49 cm",       value: 3, icon: "📏" },
       { label: "50–59 cm",       value: 4, icon: "📏" },
-      { label: "60 cm o más",    value: 5, icon: "🚀" },
-      { label: "No lo medí",     value: 2, icon: "❓" },
+      { label: "60 cm o más",    value: 5,         icon: "🚀" },
+      { label: "No lo medí",     value: "unknown", icon: "❓" },
     ],
   },
   {
@@ -204,9 +203,9 @@ const questions: Question[] = [
   },
   {
     id: "resistance", dim: "resistencia",
-    text: "¿Cómo te sentís físicamente en el 3er set o partido seguido?",
+    text: "¿Cómo te sentís físicamente en el 5to set o partido seguido?",
     options: [
-      { label: "Me caigo a pedazos en el 3er set",              value: 1, icon: "😵" },
+      { label: "Me caigo a pedazos en el 5to set",              value: 1, icon: "😵" },
       { label: "Bajo mucho el nivel en el final del partido",   value: 2, icon: "😓" },
       { label: "Me mantengo pero noto el cansancio",            value: 3, icon: "😐" },
       { label: "Rindo casi igual todo el partido",              value: 4, icon: "💪" },
@@ -283,7 +282,7 @@ function computeScores(answers: Answers): Scores {
     const val = answers[q.id];
     if (val === undefined) return;
     let score = Number(val);
-    if (q.id === "jump") score = getJumpScore(Number(val), answers.sex as Sex, answers.position as Position);
+    if (q.id === "jump") score = getJumpScore(val === "unknown" ? 2 : Number(val), answers.sex as Sex, answers.position as Position);
     dimScores[q.dim] = (dimScores[q.dim] || 0) + score;
     dimCounts[q.dim] = (dimCounts[q.dim] || 0) + 1;
   });
@@ -463,9 +462,8 @@ export default function V12Test() {
         {/* Logo / handle */}
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <div style={{ fontSize: 11, color: V12.orange, letterSpacing: 3, textTransform: "uppercase", fontWeight: 700, marginBottom: 16 }}>@mateogsoto</div>
-          <div style={{ fontSize: 13, color: V12.greyLight, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", marginBottom: 12 }}>Diagnóstico gratuito</div>
           <div style={{ fontSize: 28, fontWeight: 900, color: V12.white, lineHeight: 1.15, marginBottom: 12 }}>
-            ¿Estás entrenando bien<br />para tu posición?
+            ¿Estás entrenando como un jugador de voleibol competitivo de verdad?
           </div>
           <div style={{ fontSize: 14, color: V12.greyLight, lineHeight: 1.6 }}>
             13 preguntas · menos de 3 minutos · resultado personalizado por posición
@@ -490,14 +488,10 @@ export default function V12Test() {
 
         <button
           onClick={() => setShowIntro(false)}
-          style={{ width: "100%", background: V12.orange, color: V12.white, fontWeight: 800, fontSize: 16, padding: "17px 0", borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "inherit", letterSpacing: 0.5, marginBottom: 12 }}
+          style={{ width: "100%", background: V12.orange, color: V12.white, fontWeight: 800, fontSize: 16, padding: "17px 0", borderRadius: 14, border: "none", cursor: "pointer", fontFamily: "inherit", letterSpacing: 0.5 }}
         >
           Empezar el diagnóstico →
         </button>
-
-        <div style={{ fontSize: 11, color: V12.greyLight, textAlign: "center" }}>
-          Gratis · Sin cuenta · Resultado inmediato
-        </div>
       </div>
     );
   }
@@ -579,10 +573,6 @@ export default function V12Test() {
           >
             Ver mi resultado →
           </button>
-
-          <div style={{ fontSize: 11, color: V12.greyLight, textAlign: "center", marginTop: 12 }}>
-            No compartimos tus datos. Sin spam.
-          </div>
         </div>
 
         <button
@@ -631,6 +621,19 @@ export default function V12Test() {
             {getProjection(overall)}
           </div>
         </div>
+
+        {/* CMJ tip for users who didn't measure */}
+        {answers.jump === "unknown" && (
+          <div style={{ background: V12.bgCard, borderRadius: 14, padding: "14px 16px", marginBottom: 20, border: `1px solid ${V12.border}`, display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ fontSize: 20, flexShrink: 0 }}>📏</span>
+            <div style={{ fontSize: 13, color: V12.greyLight, lineHeight: 1.5 }}>
+              ¿Querés saber cuánto saltás de verdad?{" "}
+              <a href={REEL_CMJ_URL} target="_blank" rel="noopener noreferrer" style={{ color: V12.orange, fontWeight: 700, textDecoration: "none" }}>
+                Mirá este video y medite en casa →
+              </a>
+            </div>
+          </div>
+        )}
 
         {/* Radar */}
         <div style={{ background: V12.bgCard, borderRadius: 16, padding: "20px 16px", marginBottom: 20, border: `1px solid ${V12.border}` }}>
@@ -725,6 +728,9 @@ export default function V12Test() {
           <p style={{ fontSize: 13, color: V12.greyLight, lineHeight: 1.6, marginBottom: 20 }}>
             {ctaCopy.body}
           </p>
+          <p style={{ fontSize: 13, color: V12.beige, lineHeight: 1.6, marginBottom: 20, fontWeight: 600 }}>
+            ¿Querés ver qué resultados consiguen jugadores como vos?
+          </p>
           <a
             href={RESULTADOS_URL}
             target="_blank"
@@ -767,16 +773,6 @@ export default function V12Test() {
           {q.text}
         </div>
         {q.sub && <div style={{ fontSize: 13, color: V12.greyLight, lineHeight: 1.5 }}>{q.sub}</div>}
-        {q.reelLink && (
-          <a
-            href={REEL_CMJ_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ display: "inline-block", marginTop: 8, fontSize: 12, color: V12.orange, textDecoration: "none", fontWeight: 600 }}
-          >
-            → ¿No sabés si saltás bien? Mirá este video
-          </a>
-        )}
       </div>
 
       <div style={{ height: 20 }} />
