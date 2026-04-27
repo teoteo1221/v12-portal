@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
   Radar, ResponsiveContainer,
@@ -365,6 +365,23 @@ export default function V12Test() {
   const [leadData, setLeadData]     = useState<LeadData>({ name: "", email: "", instagram: "" });
   const [leadErrors, setLeadErrors] = useState<Record<string, string>>({});
   const [copied, setCopied]         = useState(false);
+  const [isReturning, setIsReturning] = useState(false);
+  const [submitting, setSubmitting]   = useState(false);
+
+  // Capa 1: localStorage — mismo dispositivo/browser
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("v12_test_result");
+      if (saved) {
+        const { name, email, instagram, answers: savedAnswers } = JSON.parse(saved);
+        setLeadData({ name: name || "", email: email || "", instagram: instagram || "" });
+        setAnswers(savedAnswers || {});
+        setIsReturning(true);
+        setShowIntro(false);
+        setShowResult(true);
+      }
+    } catch { /* ignore */ }
+  }, []);
 
   const q        = questions[step];
   const total    = questions.length;
@@ -417,24 +434,58 @@ export default function V12Test() {
     const errors = validateLead(leadData);
     if (Object.keys(errors).length > 0) { setLeadErrors(errors); return; }
 
-    fetch("/api/test-lead", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name:      leadData.name.trim(),
-        email:     leadData.email.trim(),
-        instagram: leadData.instagram.trim(),
-        position:  answers.position,
-        sex:       answers.sex,
-        age:       answers.age,
-        scores,
-        overall,
-        answers,
-      }),
-    }).catch(() => {/* graceful degradation */});
+    setSubmitting(true);
+    try {
+      const res  = await fetch("/api/test-lead", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name:      leadData.name.trim(),
+          email:     leadData.email.trim(),
+          instagram: leadData.instagram.trim(),
+          position:  answers.position,
+          sex:       answers.sex,
+          age:       answers.age,
+          scores,
+          overall,
+          answers,
+        }),
+      });
+      const json = await res.json();
 
+      // Capa 2: email/instagram ya registrado → mostrar resultado anterior
+      if (json.returning && json.data) {
+        if (json.data.name) setLeadData(d => ({ ...d, name: json.data.name }));
+        if (json.data.answers && Object.keys(json.data.answers).length > 0) {
+          setAnswers(json.data.answers);
+        }
+        setIsReturning(true);
+      } else {
+        // Nuevo lead — guardar en localStorage para futuras visitas
+        try {
+          localStorage.setItem("v12_test_result", JSON.stringify({
+            name:      leadData.name.trim(),
+            email:     leadData.email.trim(),
+            instagram: leadData.instagram.trim(),
+            answers,
+          }));
+        } catch { /* ignore */ }
+      }
+    } catch { /* degradación graceful — mostrar resultado igualmente */ }
+
+    setSubmitting(false);
     setShowGate(false);
     setShowResult(true);
+  }
+
+  function handleRetake() {
+    try { localStorage.removeItem("v12_test_result"); } catch { /* ignore */ }
+    setIsReturning(false);
+    setShowResult(false);
+    setAnswers({});
+    setLeadData({ name: "", email: "", instagram: "" });
+    setStep(0);
+    setShowIntro(true);
   }
 
   // ── Share ───────────────────────────────────────────────────────────────────
@@ -567,9 +618,10 @@ export default function V12Test() {
 
           <button
             onClick={handleLeadSubmit}
-            style={{ width: "100%", background: V12.orange, color: V12.white, fontWeight: 800, fontSize: 15, padding: "15px 0", borderRadius: 12, border: "none", cursor: "pointer", fontFamily: "inherit", letterSpacing: 0.5 }}
+            disabled={submitting}
+            style={{ width: "100%", background: V12.orange, color: V12.white, fontWeight: 800, fontSize: 15, padding: "15px 0", borderRadius: 12, border: "none", cursor: submitting ? "default" : "pointer", fontFamily: "inherit", letterSpacing: 0.5, opacity: submitting ? 0.75 : 1 }}
           >
-            Ver mi resultado →
+            {submitting ? "Un momento..." : "Ver mi resultado →"}
           </button>
         </div>
 
@@ -592,6 +644,18 @@ export default function V12Test() {
 
     return (
       <div style={{ background: V12.bgDark, minHeight: "100vh", fontFamily: "'Montserrat', sans-serif", color: V12.white, padding: "24px 16px", maxWidth: 480, margin: "0 auto" }}>
+
+        {isReturning && (
+          <div style={{ background: V12.bgCard, borderRadius: 12, padding: "12px 16px", marginBottom: 20, border: `1px solid ${V12.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+            <span style={{ fontSize: 12, color: V12.greyLight, lineHeight: 1.4 }}>Ya completaste este diagnóstico</span>
+            <button
+              onClick={handleRetake}
+              style={{ background: "transparent", border: `1px solid ${V12.border}`, borderRadius: 20, padding: "5px 14px", color: V12.beige, fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}
+            >
+              Volver a hacerlo
+            </button>
+          </div>
+        )}
 
         <div style={{ textAlign: "center", marginBottom: 28 }}>
           <div style={{ fontSize: 11, color: V12.greyLight, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>@mateogsoto</div>

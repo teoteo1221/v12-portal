@@ -25,10 +25,46 @@ export async function POST(req: NextRequest) {
       ? instagram.replace(/^@/, "").trim() || null
       : null;
 
+    const emailClean = (email as string).trim().toLowerCase();
+
+    // Check if already completed (email first, then instagram)
+    let existing = null;
+    const { data: byEmail } = await supabase
+      .from("leads")
+      .select("nombre, score_total, answers, posicion")
+      .eq("email", emailClean)
+      .eq("source", "test")
+      .maybeSingle();
+
+    if (byEmail) {
+      existing = byEmail;
+    } else if (igClean) {
+      const { data: byIg } = await supabase
+        .from("leads")
+        .select("nombre, score_total, answers, posicion")
+        .eq("instagram", igClean)
+        .eq("source", "test")
+        .maybeSingle();
+      existing = byIg || null;
+    }
+
+    if (existing) {
+      return NextResponse.json({
+        ok: true,
+        returning: true,
+        data: {
+          name:    existing.nombre,
+          overall: existing.score_total ?? 0,
+          scores:  existing.answers?.scores ?? {},
+          answers: existing.answers?.raw ?? {},
+        },
+      });
+    }
+
     const payload = {
       nombre:           (name as string).trim().split(" ")[0] || name,
       apellido:         (name as string).trim().split(" ").slice(1).join(" ") || null,
-      email:            (email as string).trim().toLowerCase(),
+      email:            emailClean,
       instagram:        igClean,
       posicion:         position || null,
       source:           "test",
