@@ -1,5 +1,6 @@
 import { createSupabaseServer } from "@/lib/supabase/server";
 import { initials } from "@/lib/utils";
+import Link from "next/link";
 import { Settings, Users, Plug, UserCog, Info } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -177,6 +178,11 @@ export default async function ConfigPage() {
               </code>{" "}
               en la raíz del proyecto.
             </div>
+          </div>
+          <div className="mt-3">
+            <Link href="/ventas/config" className="btn-secondary w-full sm:w-auto">
+              Configurar integraciones desde el portal
+            </Link>
           </div>
         </section>
       </div>
