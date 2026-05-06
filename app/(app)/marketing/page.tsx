@@ -64,6 +64,9 @@ export default async function MarketingPage() {
                   <th className="px-4 py-3 text-right text-[11px] font-bold uppercase tracking-widest text-v12-muted">
                     Leads
                   </th>
+                  <th className="px-4 py-3 text-right text-[11px] font-bold uppercase tracking-widest text-v12-muted">
+                    Conv.
+                  </th>
                   <th className="px-4 py-3 text-center text-[11px] font-bold uppercase tracking-widest text-v12-muted">
                     Estado
                   </th>
@@ -84,6 +87,11 @@ export default async function MarketingPage() {
                     </td>
                     <td className="px-4 py-3 text-right font-mono text-[13px] text-v12-text">
                       {(p.leads_count ?? 0).toLocaleString()}
+                    </td>
+                    <td className="px-4 py-3 text-right font-mono text-[13px] text-v12-muted">
+                      {p.views_count > 0
+                        ? `${((p.leads_count / p.views_count) * 100).toFixed(1)}%`
+                        : "—"}
                     </td>
                     <td className="px-4 py-3 text-center">
                       <span

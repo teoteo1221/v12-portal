@@ -4,6 +4,7 @@ import { MetricsForm } from "./MetricsForm";
 import { ClipboardList, History, TrendingUp } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { MetricsTrendChart } from "@/components/dashboard/MetricsTrendChart";
+import { MetricsExportButton } from "@/components/dashboard/MetricsExportButton";
 
 export const dynamic = "force-dynamic";
 
@@ -196,9 +197,12 @@ export default async function MetricasPage({
             <History className="h-4 w-4 text-v12-muted" />
             <h3 className="section-title">Últimos 14 días</h3>
           </div>
-          <span className="num-tab rounded-full bg-v12-bg px-2 py-0.5 text-[10px] font-bold text-v12-muted">
-            {(history || []).length}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="num-tab rounded-full bg-v12-bg px-2 py-0.5 text-[10px] font-bold text-v12-muted">
+              {(history || []).length}
+            </span>
+            <MetricsExportButton history={(history || []) as any} />
+          </div>
         </div>
         {(history || []).length === 0 ? (
           <div className="empty-state">

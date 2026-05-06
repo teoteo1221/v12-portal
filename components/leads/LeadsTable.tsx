@@ -16,6 +16,7 @@ import {
   Plus,
   LayoutList,
   LayoutDashboard,
+  Download,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -311,6 +312,33 @@ export function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
       setSelected((prev) => (prev ? { ...prev, stage: newStage as Lead["stage"] } : prev));
   }
 
+  // Export CSV de leads filtrados
+  function exportCSV() {
+    const cols: Array<keyof Lead> = [
+      "nombre", "apellido", "instagram", "email", "phone",
+      "stage", "source", "pais", "ciudad", "edad", "sexo",
+      "last_interaction_at", "next_action_at", "created_at",
+    ];
+    const header = cols.join(",");
+    const rows = filtered.map((l) =>
+      cols.map((c) => {
+        const v = l[c];
+        if (v === null || v === undefined) return "";
+        const s = String(v).replace(/"/g, '""');
+        return s.includes(",") || s.includes('"') || s.includes("\n") ? `"${s}"` : s;
+      }).join(","),
+    );
+    const csv = [header, ...rows].join("\n");
+    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `leads-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`${filtered.length} leads exportados`);
+  }
+
   // Nuevo lead creado
   function handleLeadCreated(lead: Lead) {
     setLeads((prev) => [lead, ...prev]);
@@ -383,6 +411,16 @@ export function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
               <span className="hidden sm:inline">Tablero</span>
             </button>
           </div>
+
+          <button
+            type="button"
+            onClick={exportCSV}
+            title="Exportar leads visibles como CSV"
+            className="btn-secondary !py-1.5 text-xs"
+          >
+            <Download className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">CSV</span>
+          </button>
 
           <button
             type="button"
