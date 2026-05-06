@@ -238,11 +238,11 @@ export default async function HubPage() {
         {/* Acciones rápidas */}
         <div className="flex flex-wrap gap-2">
           <Link
-            href="/ventas/pipeline"
+            href="/ventas/listado"
             className="inline-flex items-center gap-1.5 rounded-lg border border-v12-line bg-white px-3 py-2 text-xs font-bold text-v12-ink-soft shadow-card transition hover:border-v12-orange/30 hover:bg-v12-orange-soft hover:text-v12-orange-dark"
           >
             <Users className="h-3.5 w-3.5" />
-            Pipeline
+            Personas
           </Link>
           <Link
             href="/ventas/llamadas"

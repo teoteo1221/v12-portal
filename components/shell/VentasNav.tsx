@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  KanbanSquare,
-  List,
+  Users,
   Phone,
   ClipboardList,
   type LucideIcon,
@@ -18,8 +17,7 @@ type Tab = {
 };
 
 const TABS: Tab[] = [
-  { href: "/ventas/pipeline", label: "Pipeline", icon: KanbanSquare },
-  { href: "/ventas/listado",  label: "Listado",  icon: List },
+  { href: "/ventas/listado",  label: "Personas",  icon: Users },
   { href: "/ventas/llamadas", label: "Llamadas", icon: Phone },
   { href: "/ventas/metricas", label: "Métricas", icon: ClipboardList },
 ];

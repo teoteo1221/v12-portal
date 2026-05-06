@@ -108,6 +108,23 @@ export interface LeadInteraction {
 }
 
 // ============================================================
+// Marketing · Landing Pages
+// ============================================================
+
+export interface LandingPage {
+  id: string;
+  slug: string;
+  title: string;
+  description: string | null;
+  content: Record<string, unknown> | null; // Puck JSON data
+  published: boolean;
+  views_count: number;
+  leads_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// ============================================================
 // Marketing · Documento Estratégico (V12 OS Fase 1)
 // ============================================================
 

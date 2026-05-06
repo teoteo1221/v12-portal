@@ -64,12 +64,13 @@ export async function POST(req: NextRequest) {
     const payload = {
       nombre:           (name as string).trim().split(" ")[0] || name,
       apellido:         (name as string).trim().split(" ").slice(1).join(" ") || null,
+      contacto:         emailClean || igClean || "",
       email:            emailClean,
       instagram:        igClean,
       posicion:         position || null,
       source:           "test",
       source_detail:    "quiz-diagnostico-v12",
-      stage:            "lead",
+      stage:            "frio",
       lead_magnet_id:   magnet?.id || null,
       score_total:      typeof overall === "number" ? overall : null,
       answers:          { scores, overall, position, sex, age, raw: answers },
@@ -77,13 +78,17 @@ export async function POST(req: NextRequest) {
       edad:             age || null,
     };
 
-    // Upsert by email — if same email comes again, update their scores
+    // Insert — duplicate check already handled above
     const { error } = await supabase
       .from("leads")
-      .upsert(payload, { onConflict: "email", ignoreDuplicates: false });
+      .insert(payload);
 
     if (error) {
-      console.error("test-lead upsert error:", error.message);
+      // Si el email ya existe en otra fuente, devolver ok igual (no bloquear al usuario)
+      if (error.code === "23505") {
+        return NextResponse.json({ ok: true });
+      }
+      console.error("test-lead insert error:", error.message);
       return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
     }
 

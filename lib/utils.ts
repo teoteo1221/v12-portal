@@ -48,25 +48,33 @@ export function initials(name?: string | null, apellido?: string | null) {
 }
 
 export const STAGE_LABELS: Record<string, string> = {
-  lead: "Frío",
+  // Valores actuales en DB
+  frio: "Frío",
   calificado: "Calificado",
   agendado: "Agendado",
   llamada_hoy: "Llamada hoy",
-  propuesta: "Propuesta enviada",
+  propuesta_enviada: "Propuesta enviada",
   cerrado: "Cerrado",
   no_cerro: "No cerró",
+  no_show: "No show",
   reactivacion: "Reactivación",
+  descartado: "Descartado",
+  // Aliases legacy (datos anteriores)
+  lead: "Frío",
+  propuesta: "Propuesta enviada",
 };
 
 export const STAGE_ORDER = [
-  "lead",
+  "frio",
   "calificado",
   "agendado",
   "llamada_hoy",
-  "propuesta",
+  "propuesta_enviada",
   "cerrado",
   "no_cerro",
+  "no_show",
   "reactivacion",
+  "descartado",
 ];
 
 export function stageColor(stage: string | null | undefined) {
@@ -74,11 +82,14 @@ export function stageColor(stage: string | null | undefined) {
     case "cerrado":
       return "bg-v12-good-bg text-v12-good ring-1 ring-inset ring-v12-good/20";
     case "no_cerro":
+    case "descartado":
       return "bg-v12-bad-bg text-v12-bad ring-1 ring-inset ring-v12-bad/20";
     case "reactivacion":
       return "bg-v12-warn-bg text-v12-warn ring-1 ring-inset ring-v12-warn/20";
+    case "propuesta_enviada":
     case "propuesta":
     case "llamada_hoy":
+    case "no_show":
       return "bg-v12-orange-light text-v12-orange-dark ring-1 ring-inset ring-v12-orange/20";
     case "agendado":
     case "calificado":
@@ -94,11 +105,14 @@ export function stageAccent(stage: string | null | undefined) {
     case "cerrado":
       return { dot: "bg-v12-good", text: "text-v12-good", bar: "from-v12-good/80 to-v12-good" };
     case "no_cerro":
+    case "descartado":
       return { dot: "bg-v12-bad", text: "text-v12-bad", bar: "from-v12-bad/80 to-v12-bad" };
     case "reactivacion":
       return { dot: "bg-v12-warn", text: "text-v12-warn", bar: "from-v12-warn/80 to-v12-warn" };
+    case "propuesta_enviada":
     case "propuesta":
     case "llamada_hoy":
+    case "no_show":
       return { dot: "bg-v12-orange", text: "text-v12-orange-dark", bar: "from-v12-orange/80 to-v12-orange-dark" };
     case "agendado":
     case "calificado":

@@ -26,12 +26,13 @@ import {
   Search,
   Home,
   Target,
-  KanbanSquare,
   Gift,
   Sparkles,
   Settings,
   Phone,
   Users,
+  BarChart3,
+  Plus,
   ArrowRight,
   X,
   ExternalLink,
@@ -57,20 +58,21 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
 }
 
+interface ActionItem {
+  kind: "action";
+  id: string;
+  label: string;
+  hint?: string;
+  icon: React.ComponentType<{ className?: string }>;
+  onSelect: () => void;
+}
+
 const NAV_ITEMS: NavItem[] = [
   { kind: "nav", id: "home", label: "Inicio", href: "/", icon: Home },
   {
     kind: "nav",
-    id: "pipeline",
-    label: "Pipeline",
-    hint: "Ventas",
-    href: "/ventas/pipeline",
-    icon: KanbanSquare,
-  },
-  {
-    kind: "nav",
-    id: "listado",
-    label: "Listado de leads",
+    id: "personas",
+    label: "Personas",
     hint: "Ventas",
     href: "/ventas/listado",
     icon: Users,
@@ -85,9 +87,17 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     kind: "nav",
-    id: "ventas-dash",
-    label: "Dashboard Ventas",
+    id: "metricas",
+    label: "Métricas",
     hint: "Ventas",
+    href: "/ventas/metricas",
+    icon: BarChart3,
+  },
+  {
+    kind: "nav",
+    id: "ventas-dash",
+    label: "Ventas",
+    hint: "Inicio Ventas",
     href: "/ventas",
     icon: Target,
   },
@@ -119,8 +129,27 @@ const NAV_ITEMS: NavItem[] = [
 
 type ResultItem =
   | NavItem
+  | ActionItem
   | { kind: "lead"; id: string; nombre: string; apellido: string | null; instagram: string | null; stageLabel: string }
   | { kind: "piece"; id: string; title: string; content_type: string | null; status: string | null };
+
+/* ─── Acciones rápidas ───────────────────────────────────────────── */
+// Se generan dentro del componente para tener acceso a close() y router
+function buildActions(router: ReturnType<typeof useRouter>, close: () => void): ActionItem[] {
+  return [
+    {
+      kind: "action",
+      id: "nuevo-lead",
+      label: "Nuevo lead",
+      hint: "Acción",
+      icon: Plus,
+      onSelect: () => {
+        router.push("/ventas/listado?nuevo=1");
+        close();
+      },
+    },
+  ];
+}
 
 /* ─── Componente principal ───────────────────────────────────────── */
 export function CommandPalette() {
@@ -203,18 +232,28 @@ export function CommandPalette() {
     return () => clearTimeout(t);
   }, [query]);
 
+  const actions = buildActions(router, close);
+
   /* Items visibles según query */
   const displayed: ResultItem[] =
     query.trim().length >= 2
       ? results
-      : NAV_ITEMS.filter((n) => {
+      : (() => {
           const q = query.toLowerCase();
-          return (
-            q === "" ||
-            n.label.toLowerCase().includes(q) ||
-            (n.hint || "").toLowerCase().includes(q)
+          const navFiltered = NAV_ITEMS.filter(
+            (n) =>
+              q === "" ||
+              n.label.toLowerCase().includes(q) ||
+              (n.hint || "").toLowerCase().includes(q),
           );
-        });
+          const actFiltered = actions.filter(
+            (a) =>
+              q === "" ||
+              a.label.toLowerCase().includes(q) ||
+              (a.hint || "").toLowerCase().includes(q),
+          );
+          return [...actFiltered, ...navFiltered];
+        })();
 
   /* Navegación teclado */
   function handleKey(e: React.KeyboardEvent) {
@@ -248,6 +287,8 @@ export function CommandPalette() {
         router.push(item.href);
       }
       close();
+    } else if (item.kind === "action") {
+      item.onSelect();
     } else if (item.kind === "lead") {
       router.push(`/ventas/listado?leadId=${item.id}`);
       close();
@@ -321,11 +362,11 @@ export function CommandPalette() {
             </div>
           )}
 
-          {/* Sección: Navegación (cuando no hay query o query corta) */}
-          {query.trim().length < 2 && NAV_ITEMS.length > 0 && (
+          {/* Sección: Acciones rápidas */}
+          {query.trim().length < 2 && actions.length > 0 && (
             <>
-              <SectionLabel>Navegación</SectionLabel>
-              {NAV_ITEMS.map((item, i) => (
+              <SectionLabel>Acciones rápidas</SectionLabel>
+              {actions.map((item, i) => (
                 <ResultRow
                   key={item.id}
                   item={item}
@@ -334,6 +375,25 @@ export function CommandPalette() {
                   onSelect={() => selectItem(item)}
                 />
               ))}
+            </>
+          )}
+
+          {/* Sección: Navegación (cuando no hay query o query corta) */}
+          {query.trim().length < 2 && NAV_ITEMS.length > 0 && (
+            <>
+              <SectionLabel>Navegación</SectionLabel>
+              {NAV_ITEMS.map((item, i) => {
+                const globalIdx = actions.length + i;
+                return (
+                  <ResultRow
+                    key={item.id}
+                    item={item}
+                    isActive={globalIdx === active}
+                    onHover={() => setActive(globalIdx)}
+                    onSelect={() => selectItem(item)}
+                  />
+                );
+              })}
             </>
           )}
 
@@ -409,6 +469,37 @@ function ResultRow({
   onHover: () => void;
   onSelect: () => void;
 }) {
+  if (item.kind === "action") {
+    const Icon = item.icon;
+    return (
+      <button
+        data-active={isActive}
+        className={cn(
+          "flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors",
+          isActive ? "bg-v12-orange-soft" : "hover:bg-v12-bg",
+        )}
+        onMouseEnter={onHover}
+        onClick={onSelect}
+      >
+        <div className={cn(
+          "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border",
+          isActive
+            ? "border-v12-orange/30 bg-v12-orange-light text-v12-orange-dark"
+            : "border-v12-line bg-v12-bg text-v12-muted",
+        )}>
+          <Icon className="h-3.5 w-3.5" />
+        </div>
+        <span className="flex-1 text-sm font-semibold text-v12-ink">{item.label}</span>
+        {item.hint && (
+          <span className="rounded-full bg-v12-orange-light px-2 py-0.5 text-[9px] font-bold text-v12-orange-dark">
+            {item.hint}
+          </span>
+        )}
+        <ArrowRight className={cn("h-3 w-3", isActive ? "text-v12-orange" : "text-v12-muted-light")} />
+      </button>
+    );
+  }
+
   if (item.kind === "nav") {
     const Icon = item.icon;
     return (

@@ -13,19 +13,19 @@ export function LeadStageBadge({
   );
 }
 
+const SOURCE_LABEL: Record<string, string> = {
+  test: "Quiz V12",
+  tally: "Tally",
+  calendly: "Calendly",
+  manychat: "IG DM",
+  fathom: "Fathom",
+  legacy: "Histórico",
+  historico: "Histórico",
+};
+
 export function SourceBadge({ source }: { source: string | null | undefined }) {
   if (!source) return null;
-  const label = source === "tally"
-    ? "Tally"
-    : source === "calendly"
-      ? "Calendly"
-      : source === "manychat"
-        ? "IG DM"
-        : source === "fathom"
-          ? "Fathom"
-          : source === "legacy"
-            ? "Histórico"
-            : source;
+  const label = SOURCE_LABEL[source] || source;
   return <span className="badge badge-neutral">{label}</span>;
 }
 

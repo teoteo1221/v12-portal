@@ -13,6 +13,7 @@ import {
   ChevronRight,
   ExternalLink,
   Sparkles,
+  Megaphone,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -41,6 +42,12 @@ const NAV: NavItem[] = [
     href: "/lead-magnets",
     label: "Lead Magnets",
     icon: Gift,
+    group: "main",
+  },
+  {
+    href: "/marketing",
+    label: "Marketing",
+    icon: Megaphone,
     group: "main",
   },
   {
