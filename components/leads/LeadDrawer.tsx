@@ -23,6 +23,7 @@ import { initials, formatDateTime, relativeTime, cn, STAGE_LABELS, STAGE_ORDER }
 import { LeadStageBadge, SourceBadge } from "./LeadBadge";
 import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import { toast } from "@/lib/toast";
+import { logInteraction } from "@/lib/logInteraction";
 
 type Tab = "resumen" | "timeline" | "llamadas" | "notas" | "followups";
 
@@ -69,6 +70,14 @@ export function LeadDrawer({
     setStageChanging(false);
     onStageChange?.(lead.id, newStage);
     toast.success(`Etapa → ${STAGE_LABELS[newStage] || newStage}`);
+    // Log stage change to timeline (fire-and-forget)
+    const prevStage = lead.stage;
+    logInteraction({
+      leadId: lead.id,
+      kind: "status_change",
+      summary: `Etapa: ${STAGE_LABELS[prevStage ?? ""] || prevStage || "?"} → ${STAGE_LABELS[newStage] || newStage}`,
+      payload: { from: prevStage, to: newStage },
+    });
   }
 
   async function handleFieldSave(field: string, value: string | null) {

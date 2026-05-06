@@ -14,6 +14,7 @@ import {
   ExternalLink,
   Sparkles,
   Megaphone,
+  CalendarClock,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -48,6 +49,12 @@ const NAV: NavItem[] = [
     href: "/marketing",
     label: "Marketing",
     icon: Megaphone,
+    group: "main",
+  },
+  {
+    href: "/ventas/followups",
+    label: "Seguimientos",
+    icon: CalendarClock,
     group: "main",
   },
   {

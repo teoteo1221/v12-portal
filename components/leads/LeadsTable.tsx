@@ -244,13 +244,23 @@ function NuevoLeadModal({
 
 type View = "list" | "board";
 
-export function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
+export function LeadsTable({
+  initialLeads,
+  autoOpenLeadId,
+  initialSearch,
+}: {
+  initialLeads: Lead[];
+  autoOpenLeadId?: string;
+  initialSearch?: string;
+}) {
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
-  const [selected, setSelected] = useState<Lead | null>(null);
+  const [selected, setSelected] = useState<Lead | null>(() =>
+    autoOpenLeadId ? (initialLeads.find((l) => l.id === autoOpenLeadId) ?? null) : null,
+  );
   const [activePreset, setActivePreset] = useState("all");
   const [stageFilter, setStageFilter] = useState("all");
   const [sourceFilter, setSourceFilter] = useState("all");
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(initialSearch ?? "");
   const [view, setView] = useState<View>("list");
   const [showNuevoLead, setShowNuevoLead] = useState(false);
 

@@ -6,6 +6,7 @@ import { ExternalLink, Filter, X, Download, ChevronDown } from "lucide-react";
 import { formatDateTime, relativeTime } from "@/lib/utils";
 import { createSupabaseBrowser } from "@/lib/supabase/client";
 import { toast } from "@/lib/toast";
+import { logInteraction } from "@/lib/logInteraction";
 import { cn } from "@/lib/utils";
 
 type CallRow = {
@@ -118,12 +119,21 @@ export function LlamadasClient({ initialRows }: { initialRows: CallRow[] }) {
     if (error) {
       toast.error("No se pudo guardar");
     } else {
+      const row = rows.find((r) => r.id === callId);
       setRows((prev) =>
         prev.map((r) =>
           r.id === callId ? { ...r, result: newResult === "pendiente" ? null : newResult } : r,
         ),
       );
       toast.success(`Resultado → ${resultLabel(newResult)}`);
+      if (row?.lead_id) {
+        logInteraction({
+          leadId: row.lead_id,
+          kind: "call_result",
+          summary: `Resultado de llamada: ${resultLabel(newResult)}`,
+          payload: { call_id: callId, result: newResult },
+        });
+      }
     }
     setSavingId(null);
   }

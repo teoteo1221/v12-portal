@@ -37,6 +37,8 @@ import {
   X,
   ExternalLink,
   Loader2,
+  Megaphone,
+  CalendarClock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -108,6 +110,22 @@ const NAV_ITEMS: NavItem[] = [
     hint: "Captación",
     href: "/lead-magnets",
     icon: Gift,
+  },
+  {
+    kind: "nav",
+    id: "marketing",
+    label: "Marketing",
+    hint: "Landing Pages",
+    href: "/marketing",
+    icon: Megaphone,
+  },
+  {
+    kind: "nav",
+    id: "followups",
+    label: "Seguimientos",
+    hint: "Ventas",
+    href: "/ventas/followups",
+    icon: CalendarClock,
   },
   {
     kind: "nav",

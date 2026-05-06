@@ -5,6 +5,7 @@ import { createSupabaseBrowser } from "@/lib/supabase/client";
 import type { Lead } from "@/lib/types";
 import { STAGE_LABELS, stageAccent, cn } from "@/lib/utils";
 import { toast } from "@/lib/toast";
+import { logInteraction } from "@/lib/logInteraction";
 import { LeadCard } from "./LeadCard";
 import { LeadDrawer } from "./LeadDrawer";
 import { Inbox } from "lucide-react";
@@ -78,6 +79,13 @@ export function Kanban({
     onStageChangeProp?.(id, newStage);
     if (lead) {
       toast.success(`${lead.nombre} → ${STAGE_LABELS[newStage] || newStage}`);
+      // Log to timeline (fire-and-forget)
+      logInteraction({
+        leadId: id,
+        kind: "status_change",
+        summary: `Etapa: ${STAGE_LABELS[lead.stage ?? ""] || lead.stage || "?"} → ${STAGE_LABELS[newStage] || newStage}`,
+        payload: { from: lead.stage, to: newStage },
+      });
     }
   }
 
