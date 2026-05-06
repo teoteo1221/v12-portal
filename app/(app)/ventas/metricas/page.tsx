@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { createSupabaseServer } from "@/lib/supabase/server";
 import { MetricsForm } from "./MetricsForm";
-import { ClipboardList, History } from "lucide-react";
+import { ClipboardList, History, TrendingUp } from "lucide-react";
 import { formatDate } from "@/lib/utils";
+import { MetricsTrendChart } from "@/components/dashboard/MetricsTrendChart";
 
 export const dynamic = "force-dynamic";
 
@@ -117,6 +118,36 @@ export default async function MetricasPage({
     if (existing) initial = existing as unknown as Row;
   }
 
+  // 30-day trend (all coaches, aggregated)
+  const thirtyAgo = new Date();
+  thirtyAgo.setDate(thirtyAgo.getDate() - 29);
+  const thirtyAgoStr = thirtyAgo.toISOString().slice(0, 10);
+
+  const { data: trend30 } = await supabase
+    .from("setter_daily_metrics")
+    .select("date, calls_scheduled, calls_completed, new_clients")
+    .gte("date", thirtyAgoStr)
+    .order("date", { ascending: true });
+
+  // Build 30-day series (fill missing days with 0s and aggregate all coaches)
+  const trendMap = new Map<string, { calls_scheduled: number; calls_completed: number; new_clients: number }>();
+  for (const row of trend30 || []) {
+    const prev = trendMap.get(row.date) ?? { calls_scheduled: 0, calls_completed: 0, new_clients: 0 };
+    trendMap.set(row.date, {
+      calls_scheduled: prev.calls_scheduled + (row.calls_scheduled ?? 0),
+      calls_completed: prev.calls_completed + (row.calls_completed ?? 0),
+      new_clients: prev.new_clients + (row.new_clients ?? 0),
+    });
+  }
+  const trendData = Array.from({ length: 30 }, (_, i) => {
+    const d = new Date(thirtyAgo);
+    d.setDate(d.getDate() + i);
+    const key = d.toISOString().slice(0, 10);
+    const label = d.toLocaleDateString("es-AR", { day: "2-digit", month: "short" });
+    const vals = trendMap.get(key) ?? { calls_scheduled: 0, calls_completed: 0, new_clients: 0 };
+    return { label, ...vals };
+  });
+
   // Recent history (last 14 days) for current target
   const { data: history } = targetCoachId
     ? await supabase
@@ -141,6 +172,15 @@ export default async function MetricasPage({
           </span>
         )}
       </header>
+
+      {/* 30-day trend */}
+      <section className="card-padded">
+        <div className="mb-4 flex items-center gap-2">
+          <TrendingUp className="h-4 w-4 text-v12-muted" />
+          <h3 className="section-title">Tendencia 30 días</h3>
+        </div>
+        <MetricsTrendChart data={trendData} />
+      </section>
 
       <MetricsForm
         initial={initial}

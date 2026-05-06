@@ -74,8 +74,10 @@ export default async function MarketingPage() {
                 {pages.map((p) => (
                   <tr key={p.id} className="group hover:bg-v12-bg/40 transition-colors">
                     <td className="px-4 py-3">
-                      <div className="font-semibold text-v12-text">{p.title}</div>
-                      <div className="text-[12px] text-v12-muted">/{p.slug}</div>
+                      <Link href={`/marketing/landing-pages/${p.id}`} className="hover:text-v12-orange-dark transition-colors">
+                        <div className="font-semibold text-v12-text">{p.title}</div>
+                        <div className="text-[12px] text-v12-muted">/{p.slug}</div>
+                      </Link>
                     </td>
                     <td className="px-4 py-3 text-right font-mono text-[13px] text-v12-text">
                       {(p.views_count ?? 0).toLocaleString()}

@@ -17,7 +17,9 @@ import {
   Clock,
   Sparkles,
   TrendingDown,
+  Megaphone,
 } from "lucide-react";
+import { PipelineFunnel } from "@/components/dashboard/PipelineFunnel";
 
 export const dynamic = "force-dynamic";
 
@@ -39,17 +41,57 @@ type AreaCard = {
 
 async function fetchHubStats() {
   const supabase = await createSupabaseServer();
-  const [leadsCount, playersCount] = await Promise.all([
+  const [leadsCount, playersCount, landingsCount] = await Promise.all([
     supabase.from("leads").select("id", { count: "exact", head: true }),
     supabase
       .from("players")
       .select("id", { count: "exact", head: true })
       .eq("active", true),
+    supabase
+      .from("landing_pages")
+      .select("id", { count: "exact", head: true })
+      .eq("published", true),
   ]);
   return {
     leads: leadsCount.count || 0,
     players: playersCount.count || 0,
+    landings: landingsCount.count || 0,
   };
+}
+
+async function fetchPipelineFunnel() {
+  const supabase = await createSupabaseServer();
+  const { data } = await supabase
+    .from("leads")
+    .select("stage");
+  if (!data) return [];
+  const counts: Record<string, number> = {};
+  for (const row of data) {
+    const s = row.stage || "lead";
+    counts[s] = (counts[s] || 0) + 1;
+  }
+  const ORDER = [
+    { stage: "lead", label: "Frío" },
+    { stage: "calificado", label: "Calificado" },
+    { stage: "agendado", label: "Agendado" },
+    { stage: "llamada_hoy", label: "Hoy" },
+    { stage: "propuesta", label: "Propuesta" },
+    { stage: "cerrado", label: "Cerrado" },
+  ];
+  const COLORS = [
+    "bg-slate-300",
+    "bg-blue-300",
+    "bg-indigo-400",
+    "bg-v12-orange",
+    "bg-amber-400",
+    "bg-green-500",
+  ];
+  return ORDER.map((o, i) => ({
+    stage: o.stage,
+    label: o.label,
+    count: counts[o.stage] || 0,
+    color: COLORS[i],
+  }));
 }
 
 function greeting() {
@@ -77,8 +119,8 @@ export default async function HubPage() {
   }
   const firstName = fullName.split(" ")[0];
 
-  const [hubStats, kpis, attention] = await Promise.all([
-    fetchHubStats().catch(() => ({ leads: 0, players: 0 })),
+  const [hubStats, kpis, attention, pipelineFunnel] = await Promise.all([
+    fetchHubStats().catch(() => ({ leads: 0, players: 0, landings: 0 })),
     fetchDashboardKPIs().catch(() => ({
       nuevosLeadsSemana: 0,
       nuevosLeadsSemanaPrev: 0,
@@ -90,6 +132,7 @@ export default async function HubPage() {
       callsToday: [],
       followUpsVencidos: [],
     })),
+    fetchPipelineFunnel().catch(() => []),
   ]);
 
   const areas: AreaCard[] = [
@@ -133,6 +176,19 @@ export default async function HubPage() {
       icon: Gift,
       variant: "active",
       accent: "orange",
+    },
+    {
+      key: "marketing",
+      title: "Marketing",
+      short: "Landings",
+      desc: "Landing pages con editor visual, captación de leads y analytics propio.",
+      href: "/marketing",
+      icon: Megaphone,
+      variant: "active",
+      accent: "orange",
+      stat: [
+        { value: hubStats.landings.toString(), label: "landings publicadas" },
+      ],
     },
     {
       key: "analytics",
@@ -291,6 +347,20 @@ export default async function HubPage() {
           tone="info"
         />
       </section>
+
+      {/* ── Pipeline funnel ── */}
+      {pipelineFunnel.some((s) => s.count > 0) && (
+        <section className="card-padded">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <p className="eyebrow">CRM</p>
+              <h2 className="section-title mt-0.5">Embudo de leads</h2>
+            </div>
+            <a href="/ventas/listado" className="btn-ghost text-xs">Ver todos →</a>
+          </div>
+          <PipelineFunnel stages={pipelineFunnel} />
+        </section>
+      )}
 
       {/* ── Areas grid ── */}
       <section className="grid grid-cols-1 gap-4 md:grid-cols-2">
